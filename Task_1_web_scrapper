@@ -1,0 +1,505 @@
+"""
+Scraper scaffold for finding bulk coffee + meat deals and outputting a simple HTML page.
+Note: Google/Maps/Reviews/social sites have strict ToS; use their official APIs (e.g. Places API,
+Ads libraries, or commercial SERP APIs) instead of raw scraping. Below scrapes merchant pages only.
+"""
+
+import argparse
+import os
+import sys
+from dataclasses import dataclass
+from datetime import datetime
+from typing import List, Callable
+
+import requests
+from bs4 import BeautifulSoup
+
+
+UA_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
+    ),
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
+COFFEE_KEYWORDS = [
+    "espresso",
+    "v60",
+    "ethiopia",
+    "ethiopian",
+    "kenya",
+    "kenyan",
+    "rwanda",
+    "rwandan",
+    "tanzania",
+    "panama",
+    "geisha",
+    "gesha",
+    "colombia",
+    "colombian",
+    "guatemala",
+    "guatemalan",
+    "peru",
+    "peruvian",
+]
+
+MEAT_KEYWORDS = [
+    "steak",
+    "striploin",
+    "ribeye",
+    "tenderloin",
+    "sirloin",
+    "ground beef",
+    "lean ground",
+    "lamb",
+    "chicken thigh",
+    "chicken leg",
+    "chicken breast",
+    "minced chicken",
+    "chicken mince",
+]
+
+
+@dataclass
+class Deal:
+    business_name: str
+    product_name: str
+    price: float
+    quantity: float
+    unit_price: float
+    delivery_cost: float
+    total_cost: float
+    product_url: str
+    scraped_date: str
+    source: str
+
+
+class BulkDealScraper:
+    def __init__(self):
+        self.deals: List[Deal] = []
+
+    def fetch_soup(self, url: str):
+        """Fetch page HTML and return BeautifulSoup (static pages)."""
+        try:
+            res = requests.get(url, headers=UA_HEADERS, timeout=20)
+            res.raise_for_status()
+            return BeautifulSoup(res.text, "html.parser")
+        except Exception as exc:
+            print(f"[warn] Failed to fetch {url}: {exc}")
+            return None
+
+    def add_deal(
+        self,
+        business_name: str,
+        product_name: str,
+        price: float,
+        quantity: float,
+        delivery_cost: float,
+        product_url: str,
+        source: str,
+    ):
+        """Normalize and store a deal record."""
+        if price is None or quantity in (None, 0):
+            return
+        unit_price = price / quantity
+        total_cost = price + (delivery_cost or 0)
+        self.deals.append(
+            Deal(
+                business_name=business_name,
+                product_name=product_name,
+                price=price,
+                quantity=quantity,
+                unit_price=unit_price,
+                delivery_cost=delivery_cost or 0.0,
+                total_cost=total_cost,
+                product_url=product_url,
+                scraped_date=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+                source=source,
+            )
+        )
+
+    def top_deals(self, keywords: List[str], limit: int = 30) -> List[Deal]:
+        items = []
+        for d in self.deals:
+            name = d.product_name.lower()
+            biz = d.business_name.lower()
+            if any(k in name or k in biz for k in keywords):
+                items.append(d)
+        return sorted(items, key=lambda d: d.unit_price)[:limit]
+
+
+def parse_float(text: str) -> float | None:
+    """Coerce price/weight text to float."""
+    if not text:
+        return None
+    cleaned = (
+        text.replace("$", "")
+        .replace("CAD", "")
+        .replace("USD", "")
+        .replace("kg", "")
+        .replace("lb", "")
+        .replace("lbs", "")
+        .replace("oz", "")
+        .replace("g", "")
+        .replace(",", "")
+        .strip()
+    )
+    try:
+        return float(cleaned)
+    except ValueError:
+        return None
+
+
+def log_empty(site: str, reason: str):
+    print(f"[warn] {site}: {reason}")
+
+
+# --- Meat scrapers (best-effort selectors; adjust as needed) ---
+
+def scrape_niku_farms(scraper: BulkDealScraper):
+    url = "https://www.nikufarms.com/how_it_works.php?code=MEAT4LIFE"
+    soup = scraper.fetch_soup(url)
+    if not soup:
+        return
+    for block in soup.select("div.plan-box, div.box, div.card, section"):
+        name_tag = block.select_one("h3, h2, .title")
+        price_tag = block.find(text=lambda t: t and "$" in t)
+        qty_tag = block.find(text=lambda t: t and ("lb" in t.lower() or "kg" in t.lower()))
+        if not name_tag:
+            continue
+        name = name_tag.get_text(strip=True)
+        price = parse_float(price_tag)
+        qty = parse_float(qty_tag) or 1
+        scraper.add_deal(
+            business_name="Niku Farms",
+            product_name=name,
+            price=price or 0,
+            quantity=qty,
+            delivery_cost=0,
+            product_url=url,
+            source=url,
+        )
+
+
+def scrape_farmway(scraper: BulkDealScraper):
+    url = "https://ontario.farmwayfoods.ca/"
+    soup = scraper.fetch_soup(url)
+    if not soup:
+        return
+    for block in soup.select("section, .card"):
+        name_tag = block.select_one("h3, h2")
+        price_tag = block.find(text=lambda t: t and "$" in t)
+        qty_tag = block.find(text=lambda t: t and ("lb" in t.lower() or "kg" in t.lower()))
+        if not name_tag:
+            continue
+        name = name_tag.get_text(strip=True)
+        price = parse_float(price_tag)
+        qty = parse_float(qty_tag) or 1
+        scraper.add_deal(
+            business_name="Farmway Foods",
+            product_name=name,
+            price=price or 0,
+            quantity=qty,
+            delivery_cost=0,
+            product_url=url,
+            source=url,
+        )
+
+
+def scrape_butcher_shop_direct(scraper: BulkDealScraper):
+    url = "https://butchershoppedirect.com/"
+    soup = scraper.fetch_soup(url)
+    if not soup:
+        return
+    cards = soup.select(".product, .grid-item, .productgrid--item, .grid-product")
+    if not cards:
+        log_empty("Butcher Shop Direct", "no product cards matched")
+        return
+    for card in cards:
+        name_tag = card.select_one(".product-title, .title, a")
+        price_tag = card.select_one(".price, .product-price")
+        qty_tag = card.find(text=lambda t: t and ("lb" in t.lower() or "kg" in t.lower()))
+        if not name_tag or not price_tag:
+            continue
+        name = name_tag.get_text(strip=True)
+        price = parse_float(price_tag.get_text())
+        qty = parse_float(qty_tag) or 1
+        link_tag = card.select_one("a")
+        scraper.add_deal(
+            business_name="Butcher Shop Direct",
+            product_name=name,
+            price=price or 0,
+            quantity=qty,
+            delivery_cost=0,
+            product_url=link_tag["href"] if link_tag and link_tag.has_attr("href") else url,
+            source=url,
+        )
+
+
+def scrape_butcherbox(scraper: BulkDealScraper):
+    url = "https://butcherbox.ca/"
+    soup = scraper.fetch_soup(url)
+    if not soup:
+        return
+    for block in soup.select("section, .plan"):
+        name_tag = block.select_one("h3, h2")
+        price_tag = block.find(text=lambda t: t and "$" in t)
+        qty_tag = block.find(text=lambda t: t and ("lb" in t.lower() or "kg" in t.lower()))
+        if not name_tag:
+            continue
+        name = name_tag.get_text(strip=True)
+        price = parse_float(price_tag)
+        qty = parse_float(qty_tag) or 1
+        scraper.add_deal(
+            business_name="ButcherBox",
+            product_name=name,
+            price=price or 0,
+            quantity=qty,
+            delivery_cost=0,
+            product_url=url,
+            source=url,
+        )
+
+
+def scrape_woodward_meats(scraper: BulkDealScraper):
+    url = "https://www.woodwardmeats.com/"
+    soup = scraper.fetch_soup(url)
+    if not soup:
+        return
+    for card in soup.select(".product, .grid-product"):
+        name_tag = card.select_one(".title, .product-title, a")
+        price_tag = card.select_one(".price, .price-item")
+        qty_tag = card.find(text=lambda t: t and ("lb" in t.lower() or "kg" in t.lower()))
+        if not name_tag or not price_tag:
+            continue
+        name = name_tag.get_text(strip=True)
+        price = parse_float(price_tag.get_text())
+        qty = parse_float(qty_tag) or 1
+        link_tag = card.select_one("a")
+        scraper.add_deal(
+            business_name="Woodward Meats",
+            product_name=name,
+            price=price or 0,
+            quantity=qty,
+            delivery_cost=0,
+            product_url=link_tag["href"] if link_tag and link_tag.has_attr("href") else url,
+            source=url,
+        )
+
+
+# --- Coffee scrapers (best-effort selectors; adjust as needed) ---
+
+def scrape_stillwater(scraper: BulkDealScraper):
+    url = "https://stillwatercoffee.ca/"
+    soup = scraper.fetch_soup(url)
+    if not soup:
+        return
+    cards = soup.select(".product, .grid-product, .productgrid--item, .grid-item")
+    if not cards:
+        log_empty("Stillwater", "no product cards matched")
+        return
+    for card in cards:
+        name_tag = card.select_one(".product__title, .title, .grid-product__title, a")
+        price_tag = card.select_one(".price, .price-item, .price__regular, .money")
+        size_tag = card.find(text=lambda t: t and ("g" in t.lower() or "lb" in t.lower() or "oz" in t.lower()))
+        if not name_tag or not price_tag:
+            continue
+        name = name_tag.get_text(strip=True)
+        price = parse_float(price_tag.get_text())
+        qty = parse_float(size_tag) or 1
+        link_tag = card.select_one("a")
+        scraper.add_deal(
+            business_name="Stillwater Coffee",
+            product_name=name,
+            price=price or 0,
+            quantity=qty,
+            delivery_cost=0,
+            product_url=link_tag["href"] if link_tag and link_tag.has_attr("href") else url,
+            source=url,
+        )
+
+
+def scrape_atlas_coffee(scraper: BulkDealScraper):
+    url = "https://atlascoffeeclub.com/"
+    soup = scraper.fetch_soup(url)
+    if not soup:
+        return
+    for block in soup.select("section"):
+        name_tag = block.find(text=lambda t: t and "coffee" in t.lower())
+        price_tag = block.find(text=lambda t: t and "$" in t)
+        qty_tag = block.find(text=lambda t: t and ("oz" in t.lower() or "g" in t.lower()))
+        if not name_tag or not price_tag:
+            continue
+        name = name_tag.strip()
+        price = parse_float(price_tag)
+        qty = parse_float(qty_tag) or 1
+        scraper.add_deal(
+            business_name="Atlas Coffee Club",
+            product_name=name,
+            price=price or 0,
+            quantity=qty,
+            delivery_cost=0,
+            product_url=url,
+            source=url,
+        )
+
+
+def scrape_roasters_pack(scraper: BulkDealScraper):
+    url = "https://theroasterspack.com/collections/all"
+    soup = scraper.fetch_soup(url)
+    if not soup:
+        return
+    cards = soup.select(".product, .product-grid-item, .grid-product")
+    if not cards:
+        log_empty("The Roasters Pack", "no product cards matched")
+        return
+    for card in cards:
+        name_tag = card.select_one(".product-title, .title, .grid-product__title, a")
+        price_tag = card.select_one(".price, .price-item, .price__regular, .money")
+        size_tag = card.find(text=lambda t: t and ("g" in t.lower() or "oz" in t.lower()))
+        if not name_tag or not price_tag:
+            continue
+        name = name_tag.get_text(strip=True)
+        price = parse_float(price_tag.get_text())
+        qty = parse_float(size_tag) or 1
+        link_tag = card.select_one("a")
+        scraper.add_deal(
+            business_name="The Roasters Pack",
+            product_name=name,
+            price=price or 0,
+            quantity=qty,
+            delivery_cost=0,
+            product_url=link_tag["href"] if link_tag and link_tag.has_attr("href") else url,
+            source=url,
+        )
+
+
+def scrape_pilot_coffee(scraper: BulkDealScraper):
+    url = "https://pilotcoffeeroasters.com/collections/coffee"
+    soup = scraper.fetch_soup(url)
+    if not soup:
+        return
+    cards = soup.select(".productgrid--item, .grid-product, .product, .grid-item")
+    if not cards:
+        log_empty("Pilot Coffee", "no product cards matched")
+        return
+    for card in cards:
+        name_tag = card.select_one(".product-title, .grid-product__title, .product__title, a")
+        price_tag = card.select_one(".price, .price-item, .price__regular, .money")
+        size_tag = card.find(text=lambda t: t and ("g" in t.lower() or "oz" in t.lower()))
+        if not name_tag or not price_tag:
+            continue
+        name = name_tag.get_text(strip=True)
+        price = parse_float(price_tag.get_text())
+        qty = parse_float(size_tag) or 1
+        link_tag = card.select_one("a")
+        scraper.add_deal(
+            business_name="Pilot Coffee Roasters",
+            product_name=name,
+            price=price or 0,
+            quantity=qty,
+            delivery_cost=0,
+            product_url=link_tag["href"] if link_tag and link_tag.has_attr("href") else url,
+            source=url,
+        )
+
+
+def render_html(coffee: List[Deal], meat: List[Deal], out_path: str):
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    def rows(title: str, deals: List[Deal]) -> str:
+        if not deals:
+            return f"<h2>{title}</h2><p>No deals found.</p>"
+        header = (
+            "<tr><th>Business</th><th>Product</th><th>Price</th><th>Qty</th>"
+            "<th>Unit Price</th><th>Delivery</th><th>Total</th><th>Link</th><th>Source</th></tr>"
+        )
+        body = ""
+        for d in deals:
+            body += (
+                f"<tr><td>{d.business_name}</td>"
+                f"<td>{d.product_name}</td>"
+                f"<td>${d.price:.2f}</td>"
+                f"<td>{d.quantity}</td>"
+                f"<td>${d.unit_price:.2f}</td>"
+                f"<td>${d.delivery_cost:.2f}</td>"
+                f"<td>${d.total_cost:.2f}</td>"
+                f"<td><a href='{d.product_url}' target='_blank'>Product</a></td>"
+                f"<td><a href='{d.source}' target='_blank'>Site</a></td></tr>"
+            )
+        return f"<h2>{title}</h2><table>{header}{body}</table>"
+
+    html = f"""<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Bulk Deals</title>
+<style>
+body {{ font-family: Arial, sans-serif; margin: 2rem; }}
+table {{ border-collapse: collapse; width: 100%; margin-bottom: 2rem; }}
+th, td {{ border: 1px solid #ddd; padding: 8px; }}
+th {{ background: #f4f4f4; text-align: left; }}
+tr:hover {{ background: #f9f9f9; }}
+</style>
+</head>
+<body>
+<h1>Bulk Coffee & Meat Deals</h1>
+{rows("Coffee", coffee)}
+{rows("Meat", meat)}
+<p>Generated at {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")} UTC</p>
+</body>
+</html>
+"""
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(html)
+    print(f"[ok] Wrote {out_path}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Bulk deal scraper (coffee + meat).")
+    parser.add_argument(
+        "--coffee-only", action="store_true", help="Only scrape coffee sources"
+    )
+    parser.add_argument(
+        "--meat-only", action="store_true", help="Only scrape meat sources"
+    )
+    parser.add_argument(
+        "--output",
+        default="output/deals.html",
+        help="Path to write HTML output (default: output/deals.html)",
+    )
+    args = parser.parse_args()
+
+    scraper = BulkDealScraper()
+
+    scrapers: List[Callable[[BulkDealScraper], None]] = []
+    if not args.meat_only:
+        scrapers.extend(
+            [
+                scrape_stillwater,
+                scrape_atlas_coffee,
+                scrape_roasters_pack,
+                scrape_pilot_coffee,
+            ]
+        )
+    if not args.coffee_only:
+        scrapers.extend(
+            [
+                scrape_niku_farms,
+                scrape_farmway,
+                scrape_butcher_shop_direct,
+                scrape_butcherbox,
+                scrape_woodward_meats,
+            ]
+        )
+
+    for fn in scrapers:
+        fn(scraper)
+
+    coffee = scraper.top_deals(COFFEE_KEYWORDS)
+    meat = scraper.top_deals(MEAT_KEYWORDS)
+    render_html(coffee, meat, args.output)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
