@@ -17,9 +17,9 @@ def get_page():
 	url = input("Enter url of a medium article: ")
 	# Code ends here
 	
-	# handling possible error
-	if not re.match(r'https?://medium.com/',url):
-		print('Please enter a valid website, or make sure it is a medium article')
+	# handling possible error (allow live Medium and archived Medium links)
+	if not (url.startswith('https://medium.com/') or url.startswith('http://medium.com/') or url.startswith('https://web.archive.org/') or url.startswith('http://web.archive.org/')):
+		print('Please enter a valid Medium article URL (live or web.archive.org copy)')
 		sys.exit(1)
 
 	# Code here - Call get method in requests object, pass url and collect it in res
@@ -71,4 +71,4 @@ if __name__ == '__main__':
 	text = collect_text(get_page())
 	save_file(text)
 	# Instructions to Run this python code
-	# Give url as https://medium.com/@subashgandyer/papa-what-is-a-neural-network-c5e5cc427c7
+	# Give url as https://web.archive.org/web/20191126074327/https://medium.com/@subashgandyer/papa-what-is-a-neural-network-c5e5cc427c7
