@@ -1,0 +1,224 @@
+Feature,Pearson,Chi-2,RFE,Logistics,Random Forest,LightGBM,Score
+Volleys,True,True,True,True,True,False,5
+ShortPassing,True,True,True,True,True,False,5
+Reactions,True,True,True,True,True,False,5
+LongPassing,True,True,True,True,True,False,5
+Finishing,True,True,True,True,True,False,5
+FKAccuracy,True,True,True,True,True,False,5
+Body Type_PLAYER_BODY_TYPE_25,True,True,True,True,True,False,5
+Body Type_Courtois,True,True,True,True,True,False,5
+BallControl,True,True,True,True,True,False,5
+Weak Foot,True,False,True,True,True,False,4
+Strength,True,False,True,True,True,False,4
+SprintSpeed,True,False,True,True,True,False,4
+Position_RF,True,True,True,True,False,False,4
+Nationality_Uruguay,True,True,True,True,False,False,4
+Nationality_Slovenia,True,True,True,True,False,False,4
+Nationality_Gabon,True,True,True,True,False,False,4
+Nationality_Costa Rica,True,True,True,True,False,False,4
+Nationality_Belgium,True,True,True,True,False,False,4
+LongShots,True,True,False,True,True,False,4
+Agility,True,False,True,True,True,False,4
+Stamina,True,False,False,True,True,False,3
+ShotPower,True,False,False,True,True,False,3
+Position_LF,True,True,False,True,False,False,3
+Position_LAM,True,True,False,True,False,False,3
+Dribbling,True,False,False,True,True,False,3
+Crossing,True,False,False,True,True,False,3
+Body Type_Neymar,True,True,False,True,False,False,3
+Body Type_Messi,True,True,False,True,False,False,3
+Body Type_C. Ronaldo,True,True,False,True,False,False,3
+Acceleration,True,False,False,True,True,False,3
+Position_RCB,False,False,True,False,True,False,2
+Position_RB,False,True,True,False,False,False,2
+Position_CM,False,True,True,False,False,False,2
+Nationality_Spain,False,True,False,False,True,False,2
+Nationality_Croatia,False,True,True,False,False,False,2
+Preferred Foot_Right,False,False,False,False,True,False,1
+Position_ST,False,False,False,False,True,False,1
+Position_RW,False,False,True,False,False,False,1
+Position_RM,False,False,True,False,False,False,1
+Position_LW,False,True,False,False,False,False,1
+Position_LM,False,False,True,False,False,False,1
+Position_LCB,False,False,True,False,False,False,1
+Position_GK,False,False,True,False,False,False,1
+Position_CAM,False,False,True,False,False,False,1
+Nationality_Slovakia,False,True,False,False,False,False,1
+Nationality_Netherlands,False,False,True,False,False,False,1
+Nationality_Italy,False,False,False,False,True,False,1
+Nationality_Germany,False,False,False,False,True,False,1
+Nationality_France,False,True,False,False,False,False,1
+Nationality_England,False,True,False,False,False,False,1
+Nationality_Egypt,False,True,False,False,False,False,1
+Interceptions,False,False,False,False,True,False,1
+Body Type_Normal,False,False,False,False,True,False,1
+Body Type_Lean,False,False,False,False,True,False,1
+Balance,False,False,False,False,True,False,1
+Aggression,False,False,False,False,True,False,1
+Preferred Foot_Left,False,False,False,False,False,False,0
+Position_RWB,False,False,False,False,False,False,0
+Position_RS,False,False,False,False,False,False,0
+Position_RDM,False,False,False,False,False,False,0
+Position_RCM,False,False,False,False,False,False,0
+Position_RAM,False,False,False,False,False,False,0
+Position_LWB,False,False,False,False,False,False,0
+Position_LS,False,False,False,False,False,False,0
+Position_LDM,False,False,False,False,False,False,0
+Position_LCM,False,False,False,False,False,False,0
+Position_LB,False,False,False,False,False,False,0
+Position_CF,False,False,False,False,False,False,0
+Position_CDM,False,False,False,False,False,False,0
+Position_CB,False,False,False,False,False,False,0
+Nationality_Zimbabwe,False,False,False,False,False,False,0
+Nationality_Zambia,False,False,False,False,False,False,0
+Nationality_Wales,False,False,False,False,False,False,0
+Nationality_Venezuela,False,False,False,False,False,False,0
+Nationality_Uzbekistan,False,False,False,False,False,False,0
+Nationality_United States,False,False,False,False,False,False,0
+Nationality_United Arab Emirates,False,False,False,False,False,False,0
+Nationality_Ukraine,False,False,False,False,False,False,0
+Nationality_Uganda,False,False,False,False,False,False,0
+Nationality_Turkey,False,False,False,False,False,False,0
+Nationality_Tunisia,False,False,False,False,False,False,0
+Nationality_Trinidad & Tobago,False,False,False,False,False,False,0
+Nationality_Togo,False,False,False,False,False,False,0
+Nationality_Thailand,False,False,False,False,False,False,0
+Nationality_Tanzania,False,False,False,False,False,False,0
+Nationality_São Tomé & Príncipe,False,False,False,False,False,False,0
+Nationality_Syria,False,False,False,False,False,False,0
+Nationality_Switzerland,False,False,False,False,False,False,0
+Nationality_Sweden,False,False,False,False,False,False,0
+Nationality_Suriname,False,False,False,False,False,False,0
+Nationality_Sudan,False,False,False,False,False,False,0
+Nationality_St Lucia,False,False,False,False,False,False,0
+Nationality_St Kitts Nevis,False,False,False,False,False,False,0
+Nationality_South Sudan,False,False,False,False,False,False,0
+Nationality_South Africa,False,False,False,False,False,False,0
+Nationality_Sierra Leone,False,False,False,False,False,False,0
+Nationality_Serbia,False,False,False,False,False,False,0
+Nationality_Senegal,False,False,False,False,False,False,0
+Nationality_Scotland,False,False,False,False,False,False,0
+Nationality_Saudi Arabia,False,False,False,False,False,False,0
+Nationality_Rwanda,False,False,False,False,False,False,0
+Nationality_Russia,False,False,False,False,False,False,0
+Nationality_Romania,False,False,False,False,False,False,0
+Nationality_Republic of Ireland,False,False,False,False,False,False,0
+Nationality_Qatar,False,False,False,False,False,False,0
+Nationality_Puerto Rico,False,False,False,False,False,False,0
+Nationality_Portugal,False,False,False,False,False,False,0
+Nationality_Poland,False,False,False,False,False,False,0
+Nationality_Philippines,False,False,False,False,False,False,0
+Nationality_Peru,False,False,False,False,False,False,0
+Nationality_Paraguay,False,False,False,False,False,False,0
+Nationality_Panama,False,False,False,False,False,False,0
+Nationality_Palestine,False,False,False,False,False,False,0
+Nationality_Oman,False,False,False,False,False,False,0
+Nationality_Norway,False,False,False,False,False,False,0
+Nationality_Northern Ireland,False,False,False,False,False,False,0
+Nationality_Nigeria,False,False,False,False,False,False,0
+Nationality_Niger,False,False,False,False,False,False,0
+Nationality_Nicaragua,False,False,False,False,False,False,0
+Nationality_New Zealand,False,False,False,False,False,False,0
+Nationality_New Caledonia,False,False,False,False,False,False,0
+Nationality_Namibia,False,False,False,False,False,False,0
+Nationality_Mozambique,False,False,False,False,False,False,0
+Nationality_Morocco,False,False,False,False,False,False,0
+Nationality_Montserrat,False,False,False,False,False,False,0
+Nationality_Montenegro,False,False,False,False,False,False,0
+Nationality_Moldova,False,False,False,False,False,False,0
+Nationality_Mexico,False,False,False,False,False,False,0
+Nationality_Mauritius,False,False,False,False,False,False,0
+Nationality_Mauritania,False,False,False,False,False,False,0
+Nationality_Malta,False,False,False,False,False,False,0
+Nationality_Mali,False,False,False,False,False,False,0
+Nationality_Madagascar,False,False,False,False,False,False,0
+Nationality_Luxembourg,False,False,False,False,False,False,0
+Nationality_Lithuania,False,False,False,False,False,False,0
+Nationality_Liechtenstein,False,False,False,False,False,False,0
+Nationality_Libya,False,False,False,False,False,False,0
+Nationality_Liberia,False,False,False,False,False,False,0
+Nationality_Lebanon,False,False,False,False,False,False,0
+Nationality_Latvia,False,False,False,False,False,False,0
+Nationality_Kuwait,False,False,False,False,False,False,0
+Nationality_Kosovo,False,False,False,False,False,False,0
+Nationality_Korea Republic,False,False,False,False,False,False,0
+Nationality_Korea DPR,False,False,False,False,False,False,0
+Nationality_Kenya,False,False,False,False,False,False,0
+Nationality_Kazakhstan,False,False,False,False,False,False,0
+Nationality_Jordan,False,False,False,False,False,False,0
+Nationality_Japan,False,False,False,False,False,False,0
+Nationality_Jamaica,False,False,False,False,False,False,0
+Nationality_Ivory Coast,False,False,False,False,False,False,0
+Nationality_Israel,False,False,False,False,False,False,0
+Nationality_Iraq,False,False,False,False,False,False,0
+Nationality_Iran,False,False,False,False,False,False,0
+Nationality_Indonesia,False,False,False,False,False,False,0
+Nationality_India,False,False,False,False,False,False,0
+Nationality_Iceland,False,False,False,False,False,False,0
+Nationality_Hungary,False,False,False,False,False,False,0
+Nationality_Hong Kong,False,False,False,False,False,False,0
+Nationality_Honduras,False,False,False,False,False,False,0
+Nationality_Haiti,False,False,False,False,False,False,0
+Nationality_Guyana,False,False,False,False,False,False,0
+Nationality_Guinea Bissau,False,False,False,False,False,False,0
+Nationality_Guinea,False,False,False,False,False,False,0
+Nationality_Guatemala,False,False,False,False,False,False,0
+Nationality_Guam,False,False,False,False,False,False,0
+Nationality_Grenada,False,False,False,False,False,False,0
+Nationality_Greece,False,False,False,False,False,False,0
+Nationality_Ghana,False,False,False,False,False,False,0
+Nationality_Georgia,False,False,False,False,False,False,0
+Nationality_Gambia,False,False,False,False,False,False,0
+Nationality_Finland,False,False,False,False,False,False,0
+Nationality_Fiji,False,False,False,False,False,False,0
+Nationality_Faroe Islands,False,False,False,False,False,False,0
+Nationality_FYR Macedonia,False,False,False,False,False,False,0
+Nationality_Ethiopia,False,False,False,False,False,False,0
+Nationality_Estonia,False,False,False,False,False,False,0
+Nationality_Eritrea,False,False,False,False,False,False,0
+Nationality_Equatorial Guinea,False,False,False,False,False,False,0
+Nationality_El Salvador,False,False,False,False,False,False,0
+Nationality_Ecuador,False,False,False,False,False,False,0
+Nationality_Dominican Republic,False,False,False,False,False,False,0
+Nationality_Denmark,False,False,False,False,False,False,0
+Nationality_DR Congo,False,False,False,False,False,False,0
+Nationality_Czech Republic,False,False,False,False,False,False,0
+Nationality_Cyprus,False,False,False,False,False,False,0
+Nationality_Curacao,False,False,False,False,False,False,0
+Nationality_Cuba,False,False,False,False,False,False,0
+Nationality_Congo,False,False,False,False,False,False,0
+Nationality_Comoros,False,False,False,False,False,False,0
+Nationality_Colombia,False,False,False,False,False,False,0
+Nationality_China PR,False,False,False,False,False,False,0
+Nationality_Chile,False,False,False,False,False,False,0
+Nationality_Chad,False,False,False,False,False,False,0
+Nationality_Central African Rep.,False,False,False,False,False,False,0
+Nationality_Cape Verde,False,False,False,False,False,False,0
+Nationality_Canada,False,False,False,False,False,False,0
+Nationality_Cameroon,False,False,False,False,False,False,0
+Nationality_Burundi,False,False,False,False,False,False,0
+Nationality_Burkina Faso,False,False,False,False,False,False,0
+Nationality_Bulgaria,False,False,False,False,False,False,0
+Nationality_Brazil,False,False,False,False,False,False,0
+Nationality_Botswana,False,False,False,False,False,False,0
+Nationality_Bosnia Herzegovina,False,False,False,False,False,False,0
+Nationality_Bolivia,False,False,False,False,False,False,0
+Nationality_Bermuda,False,False,False,False,False,False,0
+Nationality_Benin,False,False,False,False,False,False,0
+Nationality_Belize,False,False,False,False,False,False,0
+Nationality_Belarus,False,False,False,False,False,False,0
+Nationality_Barbados,False,False,False,False,False,False,0
+Nationality_Azerbaijan,False,False,False,False,False,False,0
+Nationality_Austria,False,False,False,False,False,False,0
+Nationality_Australia,False,False,False,False,False,False,0
+Nationality_Armenia,False,False,False,False,False,False,0
+Nationality_Argentina,False,False,False,False,False,False,0
+Nationality_Antigua & Barbuda,False,False,False,False,False,False,0
+Nationality_Angola,False,False,False,False,False,False,0
+Nationality_Andorra,False,False,False,False,False,False,0
+Nationality_Algeria,False,False,False,False,False,False,0
+Nationality_Albania,False,False,False,False,False,False,0
+Nationality_Afghanistan,False,False,False,False,False,False,0
+Body Type_Stocky,False,False,False,False,False,False,0
+Body Type_Shaqiri,False,False,False,False,False,False,0
+Body Type_Akinfenwa,False,False,False,False,False,False,0
